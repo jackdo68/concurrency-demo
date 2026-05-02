@@ -33,14 +33,8 @@ function parallel() {
     let done = 0;
     SEEDS.forEach((seed) => {
       const worker = new Worker(
-        `const { parentPort, workerData } = require('node:worker_threads');
-         const { createHash } = require('node:crypto');
-         let hash = String(workerData);
-         for (let i = 0; i < 2_000_000; i++) {
-           hash = createHash('sha256').update(hash).digest('hex');
-         }
-         parentPort.postMessage(hash);`,
-        { eval: true, workerData: seed }
+        new URL('./hash-worker.ts', import.meta.url),
+        { workerData: seed }
       );
       worker.on('message', () => {
         if (++done === SEEDS.length) {
